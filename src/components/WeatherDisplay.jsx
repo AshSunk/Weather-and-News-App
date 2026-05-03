@@ -1,14 +1,25 @@
 import { Typography, Card, CardContent, List, ListItem, ListItemText, Grid } from '@mui/material';
 
 export default function WeatherDisplay({ weatherData }) {
-  const { current, hourly, daily } = weatherData;
+  const { current, forecast } = weatherData;
+
+  // Safety check
+  if (!current || !forecast) {
+    return <Typography color="error">Data format error. Please check the console.</Typography>;
+  }
+
+  // The free API gives 3-hour chunks. We take the next 8 to equal 24 hours.
+  const hourlyData = forecast.list.slice(0, 8);
+  
+  // To get "daily" data from the 3-hour list, we filter for a specific time of day (e.g., noon)
+  const dailyData = forecast.list.filter(item => item.dt_txt.includes('12:00:00'));
 
   return (
     <div>
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="h5">Current Weather</Typography>
-          <Typography variant="h3">{Math.round(current.temp)}°F</Typography>
+          <Typography variant="h5">Current Weather: {current.name}</Typography>
+          <Typography variant="h3">{Math.round(current.main.temp)}°F</Typography>
           <img
             src={`https://openweathermap.org/img/wn/${current.weather[0].icon}@2x.png`}
             alt={current.weather[0].description}
@@ -19,9 +30,9 @@ export default function WeatherDisplay({ weatherData }) {
         </CardContent>
       </Card>
 
-      <Typography variant="h6" gutterBottom>Hourly Forecast (Next 24h)</Typography>
+      <Typography variant="h6" gutterBottom>Forecast (Next 24h)</Typography>
       <List sx={{ maxHeight: 300, overflow: 'auto', mb: 3 }}>
-        {hourly.slice(0, 24).map((hour, index) => (
+        {hourlyData.map((hour, index) => (
           <ListItem key={index} divider>
             <img
               src={`https://openweathermap.org/img/wn/${hour.weather[0].icon}.png`}
@@ -29,15 +40,15 @@ export default function WeatherDisplay({ weatherData }) {
             />
             <ListItemText
               primary={`${new Date(hour.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-              secondary={`${Math.round(hour.temp)}°F - ${hour.weather[0].description}`}
+              secondary={`${Math.round(hour.main.temp)}°F - ${hour.weather[0].description}`}
             />
           </ListItem>
         ))}
       </List>
 
-      <Typography variant="h6" gutterBottom>7-Day Forecast</Typography>
+      <Typography variant="h6" gutterBottom>5-Day Forecast</Typography>
       <Grid container spacing={2}>
-        {daily.slice(0, 7).map((day, index) => (
+        {dailyData.map((day, index) => (
           <Grid item xs={12} sm={6} key={index}>
             <Card>
               <CardContent>
@@ -48,8 +59,7 @@ export default function WeatherDisplay({ weatherData }) {
                   src={`https://openweathermap.org/img/wn/${day.weather[0].icon}.png`}
                   alt={day.weather[0].description}
                 />
-                <Typography variant="body2">High: {Math.round(day.temp.max)}°F</Typography>
-                <Typography variant="body2">Low: {Math.round(day.temp.min)}°F</Typography>
+                <Typography variant="body2">Temp: {Math.round(day.main.temp)}°F</Typography>
               </CardContent>
             </Card>
           </Grid>

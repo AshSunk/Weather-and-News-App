@@ -11,10 +11,22 @@ export const fetchCoordinates = async (location) => {
 };
 
 export const fetchWeather = async (lat, lon) => {
-  const response = await fetch(
-    `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&units=imperial&exclude=minutely,alerts&appid=${WEATHER_KEY}`
+  const currentRes = await fetch(
+    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=${WEATHER_KEY}`
   );
-  return await response.json();
+  
+  const forecastRes = await fetch(
+    `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${WEATHER_KEY}`
+  );
+
+  if (!currentRes.ok || !forecastRes.ok) {
+    throw new Error("Free API rejected the request");
+  }
+
+  const current = await currentRes.json();
+  const forecast = await forecastRes.json();
+  
+  return { current, forecast };
 };
 
 export const fetchNews = async () => {
