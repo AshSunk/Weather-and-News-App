@@ -8,3 +8,9 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>,
 )
+
+const theme = createTheme({
+  palette: {
+    mode: 'light', // Change this from 'dark' to 'light'
+  },
+});

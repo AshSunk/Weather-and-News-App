@@ -31,6 +31,7 @@ function App() {
       const weather = await fetchWeather(lat, lon);
       setWeatherData(weather);
     } catch (err) {
+      console.error("ACTUAL ERROR:", err);
       setError("Could not find weather for that location.");
     } finally {
       setLoading(false);
@@ -43,8 +44,7 @@ function App() {
         Weather & News Dashboard
       </Typography>
 
-      <SearchBar onSearch={handleSearch} />
-      
+      <SearchBar onSearch={handleSearch} />      
       {loading && <CircularProgress sx={{ display: 'block', margin: '20px auto' }} />}
       {error && <Typography color="error">{error}</Typography>}
 
